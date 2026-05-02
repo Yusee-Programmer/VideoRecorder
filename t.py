@@ -1,9 +1,10 @@
-print("hello world...!!!")
+# Variable
+name = "Yusee"
+age = 40
 
-def f(x, y):
-    return x, y
+def f(n, a):
+    return n, a
 
+n, a = f(name, age)
 
-a, b = f(30, 40)
-
-print(a, b, end='\n')
+print(n, a, sep=" | ")

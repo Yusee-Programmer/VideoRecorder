@@ -11,6 +11,7 @@ import subprocess
 import imageio_ffmpeg
 from pynput.mouse import Controller
 import platform
+import queue
 
 mouse = Controller()
 
@@ -18,7 +19,7 @@ def get_mouse_pos():
     return mouse.position
 
 recording = True
-fps = 60.0  # Increased to 60 FPS for flawlessly smooth motion and scrolling
+fps = 30.0  # Standard 30 FPS for solid stability and perfect sync
 audio_ready = threading.Event()
 video_ready = threading.Event()
 
@@ -88,117 +89,123 @@ def record_screen(monitor):
     ], np.int32)
     
     frame_duration = 1.0 / fps
-    shared_state = {"frame": None}
     
-    def capture_loop():
-        use_dxcam = False
-        camera = None
-        region = None
-        clean_bg = None
-        if platform.system() == 'Windows':
-            try:
-                import dxcam
-                camera = dxcam.create(output_color="BGRA")
-                region = (monitor["left"], monitor["top"], monitor["left"] + monitor["width"], monitor["top"] + monitor["height"])
-                use_dxcam = True
-            except Exception as e:
-                print(f"[!] DXCam failed to initialize, falling back to MSS: {e}")
-                
-        with mss.mss() as sct:
-            while recording:
-                try:
-                    start_cap = time.perf_counter()
-                    
-                    if use_dxcam:
-                        new_img = camera.grab(region=region)
-                        if new_img is not None:
-                            clean_bg = new_img.copy()
-                            img = clean_bg.copy()
-                        elif clean_bg is not None:
-                            img = clean_bg.copy()
-                        else:
-                            time.sleep(0.005)
-                            continue
-                    else:
-                        img = np.array(sct.grab(monitor))
-                    
-                    # Draw cursor natively
-                    mx, my = get_mouse_pos()
-                    cx = int(mx - monitor["left"])
-                    cy = int(my - monitor["top"])
-                    
-                    if 0 <= cx < monitor["width"] and 0 <= cy < monitor["height"]:
-                        cv2.circle(img, (cx, cy), 15, (0, 255, 255, 255), -1)
-                        pts = cursor_pts + [cx, cy]
-                        cv2.fillPoly(img, [pts], (255, 255, 255, 255))
-                        cv2.polylines(img, [pts], True, (0, 0, 0, 255), 1)
-
-                    # CRITICAL: Crop frame to exactly match the even width/height declared to ffmpeg
-                    frame_bgra = np.ascontiguousarray(img[:height, :width, :])
-                    shared_state["frame"] = frame_bgra
-                    
-                    # Prevent 100% CPU usage on super fast systems
-                    elapsed = time.perf_counter() - start_cap
-                    if elapsed < 0.016:  # Capped at ~60 FPS capture
-                        time.sleep(0.016 - elapsed)
-                except Exception as e:
-                    print(f"\n[!] Capture error: {e}")
-                    time.sleep(0.01)
-
-    # Start capture thread
-    cap_thread = threading.Thread(target=capture_loop, daemon=True)
-    cap_thread.start()
+    use_dxcam = False
+    camera = None
+    clean_bg = None
     
-    # Wait for the first frame to be captured
-    while shared_state["frame"] is None and recording:
-        time.sleep(0.01)
-        
+    if platform.system() == 'Windows':
+        try:
+            import dxcam
+            camera = dxcam.create(output_color="BGRA")
+            region = (monitor["left"], monitor["top"], monitor["left"] + monitor["width"], monitor["top"] + monitor["height"])
+            use_dxcam = True
+        except Exception as e:
+            print(f"[!] DXCam failed to initialize, falling back to MSS: {e}")
+            
     print("[*] Video encoder initialized. Waiting for audio sync...")
     audio_ready.wait()
-    print("\n[*] 🔴 RECORDING STARTED SUCCESSFULLY! (Audio & Video Perfectly Synced)\n")
-        
-    next_frame_time = time.perf_counter() + frame_duration
+    print("\n[*] 🔴 RECORDING STARTED SUCCESSFULLY! (Audio & Video Tightly Aligned)\n")
+    
     video_ready.set() # Signal audio thread to start collecting exactly NOW!
     
-    try:
-        while recording:
-            current_frame = shared_state["frame"]
-            if current_frame is not None:
-                writer.send(current_frame)
-                
-            # Relaxed sleep instead of a 100% CPU busy-wait loop.
-            # Busy-waiting starves the OS Window Manager, causing the very "blinking" and screen tearing we want to fix.
-            now = time.perf_counter()
-            sleep_time = next_frame_time - now
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-            
-            next_frame_time += frame_duration
-            
-            # Frame Duplication: Keep exact A/V sync if the encoder slightly lags
-            while time.perf_counter() > next_frame_time:
-                current_frame = shared_state["frame"]
-                if current_frame is not None:
-                    writer.send(current_frame)
-                next_frame_time += frame_duration
-                
-    except Exception as e:
-        print(f"\n[!] Video recording error: {e}")
-        
-    writer.close()
-    cap_thread.join(timeout=1.0)
+    frame_queue = queue.Queue()
+    
+    def writer_worker():
+        try:
+            # Keep writing until recording stops AND the queue is completely emptied
+            while recording or not frame_queue.empty():
+                try:
+                    frame = frame_queue.get(timeout=0.1)
+                    writer.send(frame)
+                except queue.Empty:
+                    continue
+        except Exception as e:
+            print(f"[!] Writer thread error: {e}")
 
-def record_audio(fs=44100):
+    t_writer = threading.Thread(target=writer_worker, daemon=True)
+    t_writer.start()
+    
+    start_time = time.perf_counter()
+    frames_written = 0
+    
+    with mss.mss() as sct:
+        try:
+            while recording:
+                # 1. Grab the freshest possible frame synchronously
+                if use_dxcam:
+                    new_img = camera.grab(region=region)
+                    if new_img is not None:
+                        clean_bg = new_img.copy()
+                        img = clean_bg.copy()
+                    elif clean_bg is not None:
+                        img = clean_bg.copy()
+                    else:
+                        # Fallback if first frame isn't ready
+                        img = np.zeros((height, width, 4), dtype=np.uint8)
+                else:
+                    img = np.array(sct.grab(monitor))
+                
+                # 2. Draw cursor
+                mx, my = get_mouse_pos()
+                cx = int(mx - monitor["left"])
+                cy = int(my - monitor["top"])
+                
+                if 0 <= cx < monitor["width"] and 0 <= cy < monitor["height"]:
+                    cv2.circle(img, (cx, cy), 15, (0, 255, 255, 255), -1)
+                    pts = cursor_pts + [cx, cy]
+                    cv2.fillPoly(img, [pts], (255, 255, 255, 255))
+                    cv2.polylines(img, [pts], True, (0, 0, 0, 255), 1)
+
+                frame_bgra = np.ascontiguousarray(img[:height, :width, :])
+                
+                # 3. Queue frame for writer thread instantly
+                frame_queue.put(frame_bgra)
+                frames_written += 1
+                
+                # 4. Perfect Absolute Time Pacing
+                next_frame_time = start_time + (frames_written * frame_duration)
+                now = time.perf_counter()
+                
+                sleep_time = next_frame_time - now
+                if sleep_time > 0:
+                    if sleep_time > 0.002:
+                        time.sleep(sleep_time - 0.002)
+                    while time.perf_counter() < next_frame_time:
+                        pass
+                
+                # If the system lags (e.g. heavy CPU load), instantly queue duplicate frames.
+                # This guarantees the video track remains EXACTLY the same length as the audio track!
+                while time.perf_counter() > next_frame_time:
+                    frame_queue.put(frame_bgra)
+                    frames_written += 1
+                    next_frame_time = start_time + (frames_written * frame_duration)
+                
+        except Exception as e:
+            print(f"\n[!] Video recording error: {e}")
+            
+    # Wait for the writer thread to finish emptying the queue before closing!
+    print("[*] Flushing video buffer...")
+    t_writer.join()
+    writer.close()
+
+def record_audio(fs=None):
     global recording
     print("[*] Initializing microphone...")
     audio_data = []
     
-    def callback(indata, frames, time_info, status):
-        # ONLY save data when video has signaled the exact start time!
-        if video_ready.is_set():
-            audio_data.append(indata.copy())
-            
     try:
+        # Prevent "fast video / slow audio" drift by using the native hardware sample rate
+        if fs is None:
+            device_info = sd.query_devices(sd.default.device[0], 'input')
+            fs = int(device_info['default_samplerate'])
+            if fs <= 0: fs = 44100
+            
+        def callback(indata, frames, time_info, status):
+            # ONLY save data when video has signaled the exact start time!
+            if video_ready.is_set():
+                audio_data.append(indata.copy())
+                
         # Increased blocksize to 4096 to prevent buffer underruns
         stream = sd.InputStream(samplerate=fs, channels=1, callback=callback, blocksize=4096)
         stream.start()
@@ -228,9 +235,10 @@ def merge_video_audio():
         "-i", "temp_video.mp4",
         "-i", "temp_audio.wav",
         "-c:v", "copy",
-        "-af", "highpass=f=80,afftdn=nf=-25,acompressor=threshold=-12dB:ratio=2:makeup=2",  # Natural noise reduction without pumping background hum
+        "-af", "highpass=f=80,afftdn=nf=-20,acompressor=threshold=-15dB:ratio=2.5:makeup=3",  # Clean, clear, warm voice without echo or pumping
         "-c:a", "aac",
         "-b:a", "192k",
+        "-shortest",
         "demo_recording.mp4"
     ]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
