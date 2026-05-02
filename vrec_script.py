@@ -18,7 +18,9 @@ def get_mouse_pos():
     return mouse.position
 
 recording = True
-fps = 30.0  # Increased to 30 FPS for smooth motion
+fps = 60.0  # Increased to 60 FPS for flawlessly smooth motion and scrolling
+audio_ready = threading.Event()
+video_ready = threading.Event()
 
 def select_region():
     print("\n[*] Screen capture for area selection...")
@@ -86,64 +88,131 @@ def record_screen(monitor):
     ], np.int32)
     
     frame_duration = 1.0 / fps
-    next_frame_time = time.perf_counter() + frame_duration
+    shared_state = {"frame": None}
     
-    with mss.mss() as sct:
-        try:
+    def capture_loop():
+        use_dxcam = False
+        camera = None
+        region = None
+        clean_bg = None
+        if platform.system() == 'Windows':
+            try:
+                import dxcam
+                camera = dxcam.create(output_color="BGRA")
+                region = (monitor["left"], monitor["top"], monitor["left"] + monitor["width"], monitor["top"] + monitor["height"])
+                use_dxcam = True
+            except Exception as e:
+                print(f"[!] DXCam failed to initialize, falling back to MSS: {e}")
+                
+        with mss.mss() as sct:
             while recording:
-                img = np.array(sct.grab(monitor))
-                
-                # Draw cursor using ultra-fast ctypes directly on BGRA
-                mx, my = get_mouse_pos()
-                cx = int(mx - monitor["left"])
-                cy = int(my - monitor["top"])
-                
-                if 0 <= cx < monitor["width"] and 0 <= cy < monitor["height"]:
-                    cv2.circle(img, (cx, cy), 15, (0, 255, 255, 255), -1)
-                    pts = cursor_pts + [cx, cy]
-                    cv2.fillPoly(img, [pts], (255, 255, 255, 255))
-                    cv2.polylines(img, [pts], True, (0, 0, 0, 255), 1)
+                try:
+                    start_cap = time.perf_counter()
+                    
+                    if use_dxcam:
+                        new_img = camera.grab(region=region)
+                        if new_img is not None:
+                            clean_bg = new_img.copy()
+                            img = clean_bg.copy()
+                        elif clean_bg is not None:
+                            img = clean_bg.copy()
+                        else:
+                            time.sleep(0.005)
+                            continue
+                    else:
+                        img = np.array(sct.grab(monitor))
+                    
+                    # Draw cursor natively
+                    mx, my = get_mouse_pos()
+                    cx = int(mx - monitor["left"])
+                    cy = int(my - monitor["top"])
+                    
+                    if 0 <= cx < monitor["width"] and 0 <= cy < monitor["height"]:
+                        cv2.circle(img, (cx, cy), 15, (0, 255, 255, 255), -1)
+                        pts = cursor_pts + [cx, cy]
+                        cv2.fillPoly(img, [pts], (255, 255, 255, 255))
+                        cv2.polylines(img, [pts], True, (0, 0, 0, 255), 1)
 
-                # CRITICAL: Crop frame to exactly match the even width/height declared to ffmpeg
-                frame_bgra = np.ascontiguousarray(img[:height, :width, :])
+                    # CRITICAL: Crop frame to exactly match the even width/height declared to ffmpeg
+                    frame_bgra = np.ascontiguousarray(img[:height, :width, :])
+                    shared_state["frame"] = frame_bgra
+                    
+                    # Prevent 100% CPU usage on super fast systems
+                    elapsed = time.perf_counter() - start_cap
+                    if elapsed < 0.016:  # Capped at ~60 FPS capture
+                        time.sleep(0.016 - elapsed)
+                except Exception as e:
+                    print(f"\n[!] Capture error: {e}")
+                    time.sleep(0.01)
+
+    # Start capture thread
+    cap_thread = threading.Thread(target=capture_loop, daemon=True)
+    cap_thread.start()
+    
+    # Wait for the first frame to be captured
+    while shared_state["frame"] is None and recording:
+        time.sleep(0.01)
+        
+    print("[*] Video encoder initialized. Waiting for audio sync...")
+    audio_ready.wait()
+    print("\n[*] 🔴 RECORDING STARTED SUCCESSFULLY! (Audio & Video Perfectly Synced)\n")
+        
+    next_frame_time = time.perf_counter() + frame_duration
+    video_ready.set() # Signal audio thread to start collecting exactly NOW!
+    
+    try:
+        while recording:
+            current_frame = shared_state["frame"]
+            if current_frame is not None:
+                writer.send(current_frame)
                 
-                # High-precision busy-wait loop to guarantee flawlessly smooth frame pacing
-                now = time.perf_counter()
-                sleep_time = next_frame_time - now
-                if sleep_time > 0:
-                    if sleep_time > 0.002:
-                        time.sleep(sleep_time - 0.002)
-                    while time.perf_counter() < next_frame_time:
-                        pass
-                
-                # Write frame
-                writer.send(frame_bgra)
+            # Relaxed sleep instead of a 100% CPU busy-wait loop.
+            # Busy-waiting starves the OS Window Manager, causing the very "blinking" and screen tearing we want to fix.
+            now = time.perf_counter()
+            sleep_time = next_frame_time - now
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+            
+            next_frame_time += frame_duration
+            
+            # Frame Duplication: Keep exact A/V sync if the encoder slightly lags
+            while time.perf_counter() > next_frame_time:
+                current_frame = shared_state["frame"]
+                if current_frame is not None:
+                    writer.send(current_frame)
                 next_frame_time += frame_duration
                 
-                # Frame Duplication: If capturing took too long (GPU busy during scroll), duplicate the frame
-                # This guarantees constant 30 FPS stream and fixes "blinking" or jumping during scrolls
-                while time.perf_counter() > next_frame_time:
-                    writer.send(frame_bgra)
-                    next_frame_time += frame_duration
-                
-        except Exception as e:
-            print(f"\n[!] Video recording error: {e}")
-            
+    except Exception as e:
+        print(f"\n[!] Video recording error: {e}")
+        
     writer.close()
+    cap_thread.join(timeout=1.0)
 
 def record_audio(fs=44100):
     global recording
-    print("[*] Starting microphone recording...")
+    print("[*] Initializing microphone...")
     audio_data = []
     
     def callback(indata, frames, time_info, status):
-        audio_data.append(indata.copy())
+        # ONLY save data when video has signaled the exact start time!
+        if video_ready.is_set():
+            audio_data.append(indata.copy())
+            
+    try:
+        # Increased blocksize to 4096 to prevent buffer underruns
+        stream = sd.InputStream(samplerate=fs, channels=1, callback=callback, blocksize=4096)
+        stream.start()
+        audio_ready.set() # Signal video that microphone is open and waiting
         
-    # Increased blocksize to 4096 to prevent buffer underruns (fixes audio cracking/popping)
-    with sd.InputStream(samplerate=fs, channels=1, callback=callback, blocksize=4096):
         while recording:
             time.sleep(0.1)
             
+        stream.stop()
+        stream.close()
+    except Exception as e:
+        print(f"\n[!] Audio recording error: {e}")
+        audio_ready.set() # Don't block video if audio fails
+        
     print("[*] Saving audio...")
     if len(audio_data) > 0:
         audio_concat = np.concatenate(audio_data, axis=0)
@@ -153,13 +222,15 @@ def merge_video_audio():
     print("\n[*] Saving video instantly, please wait...")
     ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
     
-    # Use copy to instantly multiplex without re-encoding, avoiding long freezes
+    # Use copy to instantly multiplex video, while applying professional audio filters
     cmd = [
         ffmpeg_exe, "-y",
         "-i", "temp_video.mp4",
         "-i", "temp_audio.wav",
         "-c:v", "copy",
+        "-af", "highpass=f=80,afftdn=nf=-25,acompressor=threshold=-12dB:ratio=2:makeup=2",  # Natural noise reduction without pumping background hum
         "-c:a", "aac",
+        "-b:a", "192k",
         "demo_recording.mp4"
     ]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
