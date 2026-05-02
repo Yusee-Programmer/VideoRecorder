@@ -19,7 +19,7 @@ def get_mouse_pos():
     return mouse.position
 
 recording = True
-fps = 30.0  # Standard 30 FPS for solid stability and perfect sync
+fps = 60.0  # Increased to 60 FPS for absolutely flawless browser scrolling
 audio_ready = threading.Event()
 video_ready = threading.Event()
 
