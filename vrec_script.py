@@ -19,7 +19,7 @@ def get_mouse_pos():
     return mouse.position
 
 recording = True
-fps = 60.0  # Increased to 60 FPS for absolutely flawless browser scrolling
+fps = 30.0  # 30 FPS is smooth and encoder can keep up without hitching
 audio_ready = threading.Event()
 video_ready = threading.Event()
 
@@ -78,7 +78,7 @@ def record_screen(monitor):
         pix_fmt_in='bgra',      # Direct BGRA input skips expensive color conversions
         pix_fmt_out='yuv420p',  # CRITICAL for standard video player compatibility
         macro_block_size=2,     # Allows any even-numbered resolution
-        output_params=['-preset', 'ultrafast', '-crf', '18']
+        output_params=['-preset', 'ultrafast', '-crf', '25', '-threads', '4']
     )
     writer.send(None) # Initialize generator
     
@@ -109,7 +109,7 @@ def record_screen(monitor):
     
     video_ready.set() # Signal audio thread to start collecting exactly NOW!
     
-    frame_queue = queue.Queue(maxsize=30)  # Limit queue to prevent memory explosion
+    frame_queue = queue.Queue(maxsize=90)  # Increased buffer to 1.5 seconds at 60fps
     
     def writer_worker():
         try:
@@ -159,11 +159,15 @@ def record_screen(monitor):
 
                 frame_bgra = np.ascontiguousarray(img[:height, :width, :])
                 
-                # 3. Queue frame for writer thread (blocking ensures sync with encoder)
-                frame_queue.put(frame_bgra)
-                frames_written += 1
+                # 3. Queue frame for writer thread (non-blocking to prevent hitches)
+                try:
+                    frame_queue.put(frame_bgra, block=False)
+                    frames_written += 1
+                except queue.Full:
+                    # Encoder is behind, drop frame to maintain smooth capture
+                    pass
                 
-                # 4. Perfect Absolute Time Pacing
+                # 4. Simple time pacing to maintain ~30fps
                 next_frame_time = start_time + (frames_written * frame_duration)
                 now = time.perf_counter()
                 
@@ -173,13 +177,6 @@ def record_screen(monitor):
                         time.sleep(sleep_time - 0.002)
                     while time.perf_counter() < next_frame_time:
                         pass
-                
-                # If the system lags (e.g. heavy CPU load), instantly queue duplicate frames.
-                # This guarantees the video track remains EXACTLY the same length as the audio track!
-                while time.perf_counter() > next_frame_time:
-                    frame_queue.put(frame_bgra)
-                    frames_written += 1
-                    next_frame_time = start_time + (frames_written * frame_duration)
                 
         except Exception as e:
             print(f"\n[!] Video recording error: {e}")
@@ -229,15 +226,14 @@ def merge_video_audio():
     print("\n[*] Saving video instantly, please wait...")
     ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
     
-    # Use copy to instantly multiplex video, while applying professional audio filters
+    # Use copy codecs for instant muxing (no re-encoding)
     cmd = [
         ffmpeg_exe, "-y",
         "-i", "temp_video.mp4",
         "-i", "temp_audio.wav",
         "-c:v", "copy",
-        "-af", "highpass=f=80,afftdn=nf=-20,acompressor=threshold=-15dB:ratio=2.5:makeup=3",  # Clean, clear, warm voice without echo or pumping
         "-c:a", "aac",
-        "-b:a", "192k",
+        "-b:a", "128k",
         "-shortest",
         "demo_recording.mp4"
     ]
