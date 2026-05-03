@@ -109,7 +109,7 @@ def record_screen(monitor):
     
     video_ready.set() # Signal audio thread to start collecting exactly NOW!
     
-    frame_queue = queue.Queue()
+    frame_queue = queue.Queue(maxsize=30)  # Limit queue to prevent memory explosion
     
     def writer_worker():
         try:
@@ -159,7 +159,7 @@ def record_screen(monitor):
 
                 frame_bgra = np.ascontiguousarray(img[:height, :width, :])
                 
-                # 3. Queue frame for writer thread instantly
+                # 3. Queue frame for writer thread (blocking ensures sync with encoder)
                 frame_queue.put(frame_bgra)
                 frames_written += 1
                 
@@ -177,7 +177,7 @@ def record_screen(monitor):
                 # If the system lags (e.g. heavy CPU load), instantly queue duplicate frames.
                 # This guarantees the video track remains EXACTLY the same length as the audio track!
                 while time.perf_counter() > next_frame_time:
-                    frame_queue.put(frame_bgra)
+                    frame_queue.put(frame_bgra, timeout=1.0)
                     frames_written += 1
                     next_frame_time = start_time + (frames_written * frame_duration)
                 
