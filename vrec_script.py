@@ -177,7 +177,7 @@ def record_screen(monitor):
                 # If the system lags (e.g. heavy CPU load), instantly queue duplicate frames.
                 # This guarantees the video track remains EXACTLY the same length as the audio track!
                 while time.perf_counter() > next_frame_time:
-                    frame_queue.put(frame_bgra, timeout=1.0)
+                    frame_queue.put(frame_bgra)
                     frames_written += 1
                     next_frame_time = start_time + (frames_written * frame_duration)
                 
