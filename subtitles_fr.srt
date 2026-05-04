@@ -1,0 +1,176 @@
+1
+00:00:00,000 --> 00:00:05,600
+Bonjour, bonne journée.
+
+2
+00:00:05,600 --> 00:00:17,760
+Il s'agit donc en fait d'un logiciel de gestion scolaire conçu pour les écoles primaires et secondaires.
+
+3
+00:00:17,760 --> 00:00:22,880
+système de gestion scolaire.
+
+4
+00:00:22,880 --> 00:00:27,880
+Nous allons donc en fait vous démontrer comment cela fonctionne.
+
+5
+00:00:27,880 --> 00:00:35,600
+Tout d'abord, vous êtes dans l'interface d'administration, la page de connexion de l'administrateur où vous pouvez
+
+6
+00:00:35,600 --> 00:00:37,840
+pour vous connecter au système.
+
+7
+00:00:37,840 --> 00:00:46,080
+Donc, si vous disposez d'un accès administrateur, vous pouvez essayer de vous connecter, pas seulement sur Win, même si vous êtes
+
+8
+00:00:46,080 --> 00:00:53,080
+dans l'équipe, peut-être que la personne qui a acheté ce logiciel sera administrateur
+
+9
+00:00:53,080 --> 00:01:03,080
+et en fait, il peut embaucher du personnel qui peut l'aider à gérer l'ensemble du système.
+
+10
+00:01:03,080 --> 00:01:11,080
+Cela signifie donc qu'il peut effectivement répartir un grand nombre de promenades entre différents utilisateurs du logiciel.
+
+11
+00:01:11,080 --> 00:01:17,080
+Disons par exemple que vous êtes un administrateur, essayons de vous connecter en tant qu'administrateur.
+
+12
+00:01:17,080 --> 00:01:25,080
+Si nous nous connectons en tant qu'administrateur, cela nous mènera directement au tableau de bord d'administration.
+
+13
+00:01:25,080 --> 00:01:29,080
+Ainsi, seul l'administrateur aide à accéder à ce tableau de bord.
+
+14
+00:01:29,080 --> 00:01:38,080
+Donc, si d'autres membres du personnel travaillent sur votre logiciel, ils ne pourront peut-être pas y accéder.
+
+15
+00:01:38,080 --> 00:01:48,080
+mais moins si vous leur donnez les identifiants, le login, les informations de connexion pour qu'ils puissent accéder à tout cela.
+
+16
+00:01:48,080 --> 00:01:59,080
+Donc en fait, dans le tableau de bord, c'est ici que vous allez voir une statistique récapitulative des données et informations relatives à l'étudiant.
+
+17
+00:01:59,080 --> 00:02:07,080
+Disons ici, par exemple, que nous pouvons voir le nombre total d'élèves dans l'école, le personnel total de l'école,
+
+18
+00:02:07,080 --> 00:02:16,080
+le nombre total de classes de l'école, le nombre total d'utilisateurs qui utilisent ce logiciel, oui par exemple moi en tant qu'administrateur,
+
+19
+00:02:16,080 --> 00:02:26,080
+J'ai acheté ce logiciel donc j'ai des personnes qui travaillent dessus, donc je partage ou échange et j'accède pour qu'ils puissent accéder au système.
+
+20
+00:02:26,080 --> 00:02:36,080
+Ainsi, en fonction de l'accès dont vous disposez, vous ne serez autorisé à utiliser que certaines fonctionnalités de ce logiciel.
+
+21
+00:02:36,080 --> 00:02:50,080
+Ici aussi, vous pouvez voir les revenus totaux de l'école, ici vous pouvez voir la santé financière, les dépenses et les revenus de l'école, peut-être d'ici un an.
+
+22
+00:02:50,080 --> 00:03:02,080
+Et vous pouvez également voir les performances des classes d'élèves, pour chaque classe, nous pouvons voir quelle classe est la plus performante.
+
+23
+00:03:02,080 --> 00:03:19,080
+Donc ici aussi la fréquentation des élèves, le nombre total d'élèves de l'élève de l'école, sur la base de ce numéro d'élève, vous pouvez voir la performance de la fréquentation de l'école de l'élève.
+
+24
+00:03:19,080 --> 00:03:30,080
+Donc voici la répartition par rôle du personnel, le nombre du personnel et aussi la question genre, vous voyez beaucoup de choses.
+
+25
+00:03:30,080 --> 00:03:46,080
+Et voici aussi une section d'alerte, si vous envoyez beaucoup de messages à l'ensemble de l'élève, du personnel ou des parents, vous les verrez ici, vous pouvez peut-être envoyer un événement, vous pouvez créer un calendrier, vous pouvez envoyer un événement,
+
+26
+00:03:46,080 --> 00:03:56,080
+vous avez une section d'annonce, donc nous pouvons aussi changer la langue en français, essayons de changer la langue du français.
+
+27
+00:03:56,080 --> 00:04:01,080
+Alors vous voyez, faisons-le ici.
+
+28
+00:04:01,080 --> 00:04:21,080
+Donc ici, nous avons changé la langue en français, nous pouvons aller vers les étudiants, nous pouvons essayer de modifier, de manipuler les données des étudiants, d'ajouter des étudiants, d'utiliser les informations sur les données des étudiants liées aux universitaires,
+
+29
+00:04:21,080 --> 00:04:50,080
+les données de résultat et beaucoup de choses, nous pouvons même imprimer cela, vous pouvez voir la carte d'identité de l'étudiant, vous pouvez voir cela, vous pouvez revenir en arrière, vous pouvez réellement modifier les données de l'étudiant, vous pouvez faire beaucoup de choses sur l'étudiant, vous pouvez le faire pendant un certain temps, vous pouvez supprimer l'étudiant ou le modifier, vous pouvez promouvoir l'étudiant et faire beaucoup de choses que vous voyez.
+
+30
+00:04:50,080 --> 00:05:16,080
+Et puis vous pouvez accéder aux sections académiques où vous pouvez ajouter une nouvelle classe dans l'école, créer une nouvelle matière de l'école, créer un emploi du temps, un emploi du temps de classe, et aussi vous pouvez prendre la présence de l'élève, vous pouvez faire beaucoup de choses.
+
+31
+00:05:16,080 --> 00:05:44,080
+Ainsi, vous pouvez également ajouter un nouveau dossier sur les performances des élèves, afin que vous puissiez surveiller les finances, les sections financières, vous voyez l'école avec laquelle vous venez, vous pouvez voir que j'ai utilisé les dépenses et aussi les revenus totaux, vous voyez que j'ai attrapé ici, et beaucoup de choses.
+
+32
+00:05:44,080 --> 00:06:12,080
+Et vous pouvez également surveiller les enseignants, le personnel, vous pouvez imprimer la carte d'identité, vous pouvez voir la carte d'identité, vous pouvez l'imprimer, vous pouvez modifier, éditer les données, vous pouvez prendre les présences, vous pouvez voir leurs transactions comme le paiement, le reçu et bien d'autres choses.
+
+33
+00:06:12,080 --> 00:06:34,080
+Cela fait donc beaucoup, vous pouvez ajouter de nouveaux utilisateurs, oui, vous pouvez ajouter de nouveaux utilisateurs dans le système, vous pouvez effectivement demander un congé, peut-être que vous avez des excuses, vous voulez voyager quelque part ou vous ne vous sentez pas bien, vous ne vous sentez pas bien, vous pouvez prendre une excuse.
+
+34
+00:06:34,080 --> 00:07:02,080
+Voici donc également une section de calendrier, afin que vous puissiez créer un calendrier, vous pouvez concevoir beaucoup de choses, ajouter un événement, donc cet événement sera annoncé dans un e-mail ou un SMS ou autre, il s'agit également de quelques sections de gestion où vous pouvez créer un reçu.
+
+35
+00:07:02,080 --> 00:07:18,080
+Vous pouvez créer beaucoup de choses à partir d'ici, gérer toutes les données sur l'école, les élèves et le personnel, et aussi ici vous pouvez faire une annonce, voyez-vous.
+
+36
+00:07:18,080 --> 00:07:46,080
+Ici aussi, si vous avez une bibliothèque, vous pouvez créer toute la bibliothèque de l'école, vous pouvez ajouter un nouveau livre, le livre que j'ai déjà lu ici et le livre que vous avez déjà emprunté à quelqu'un, et vous pouvez également aller au centre de santé où vous pouvez faire les soins de santé, vous pouvez ajouter, vous pouvez ajouter,
+
+37
+00:07:46,080 --> 00:08:11,080
+vous pouvez créer des données sur, peut-être que quelqu'un ne se sent pas bien, vous pouvez maintenant créer ces données, c'est un dossier ici, vous voyez, et beaucoup de choses, nous pouvons ajouter un moyen de transport, par exemple, vous voulez voyager vers peut-être un étudiant, vous voyez des robinets, ou autre, donc vous voyez.
+
+38
+00:08:11,080 --> 00:08:29,080
+Nous avons beaucoup de choses, vous pouvez également imprimer les données, Excel ou dire, sb, vous pouvez voir ici le nombre total d'étudiants, par exemple, quelques informations sur cet étudiant.
+
+39
+00:08:30,080 --> 00:08:50,080
+Donc, en fait, il ne s'agit que de quelques choses, il y a beaucoup plus de fonctionnalités du logiciel tel que TomPrinxScaner, lors de la présence de l'étudiant ou du personnel, ils doivent numériser, ils doivent numériser selon leur empreinte digitale,
+
+40
+00:08:51,080 --> 00:09:08,080
+et aussi, comme vous pouvez le voir, on peut imprimer la carte d'identité de l'étudiant et plein de choses, on peut chercher pour règler, pareil, par exemple, on peut chercher, d'ici tu vois, je cherche tu vois,
+
+41
+00:09:08,080 --> 00:09:13,080
+donc vous voyez, si vous recherchez ceci,
+
+42
+00:09:14,080 --> 00:09:37,080
+donc vous voyez, c'est à peu près, vous pouvez aussi passer de l'ambiance claire à l'ambiance sombre, vous pouvez passer de l'ambiance claire à l'ambiance sombre, selon ce que vous voulez que ce soit,
+
+43
+00:09:38,080 --> 00:09:49,080
+pour nous qui avons des problèmes avec la glace, il est donc préférable d'avoir une humeur sombre comme celle-ci, pour que la lumière ne perturbe pas votre glace,
+
+44
+00:09:49,080 --> 00:10:00,080
+donc vous voyez, nous avons beaucoup de fonctionnalités de ce logiciel, merci beaucoup, bonne journée.
+
