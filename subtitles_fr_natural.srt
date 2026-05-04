@@ -1,0 +1,44 @@
+1
+00:00:00,000 --> 00:00:45,000
+Bonjour et bienvenue dans cette présentation complète d'EduManage, votre partenaire pour une gestion scolaire simplifiée et efficace. Nous commençons ici par l'initialisation de notre système de démonstration pour vous montrer la puissance de l'outil dès son lancement.
+
+2
+00:00:45,000 --> 00:02:00,000
+Nous arrivons maintenant sur le tableau de bord principal. C'est le cœur de votre établissement. Comme vous pouvez le constater, l'interface est épurée et moderne. Vous avez immédiatement accès aux chiffres clés : le nombre total d'élèves inscrits, l'effectif complet de votre personnel, et bien sûr, un suivi financier en temps réel avec le revenu total affiché en haut à droite.
+
+3
+00:02:00,000 --> 00:04:00,000
+Les graphiques en bas de page vous permettent de visualiser la santé financière de l'école, en comparant les revenus et les dépenses. À côté, le graphique de performance vous donne une vision claire du niveau académique par classe. C'est un outil indispensable pour les directeurs d'école qui souhaitent prendre des décisions basées sur des données précises.
+
+4
+00:04:00,000 --> 00:06:00,000
+Explorons maintenant le répertoire des élèves. La gestion des inscriptions n'a jamais été aussi simple. Vous disposez d'une liste exhaustive où vous pouvez filtrer les étudiants par nom ou par classe. Pour chaque élève, vous avez des actions rapides : consulter son profil complet, générer un bulletin académique, ou modifier ses informations personnelles en un clin d'œil.
+
+5
+00:06:00,000 --> 00:08:00,000
+La fluidité de la plateforme est l'un de ses points forts. Que vous passiez du module de scolarité au calendrier académique, tout se fait instantanément. Le calendrier vous permet de noter les dates d'examens, les réunions de parents ou les périodes de vacances. C'est une vue partagée qui assure que tout le monde, de l'administration aux enseignants, reste sur la même longueur d'onde.
+
+6
+00:08:00,000 --> 00:09:00,000
+En descendant dans le menu, nous trouvons les services de frais et les annonces. Le module d'annonces est particulièrement utile pour communiquer des informations importantes à toute la communauté scolaire de manière officielle et structurée.
+
+7
+00:09:00,000 --> 00:10:00,000
+Passons à une fonctionnalité essentielle : les rapports. EduManage vous permet de générer des rapports détaillés sur presque tous les aspects de votre école. Vous avez besoin d'un résumé des inscriptions, d'une liste de présence pour une classe spécifique, ou d'un rapport financier annuel ? Tout est là, prêt à être consulté ou exporté.
+
+8
+00:10:00,000 --> 00:11:00,000
+L'exportation de données est extrêmement flexible. Vous pouvez télécharger vos listes d'étudiants, vos registres de paiements ou vos fiches de paie directement en format Excel ou CSV. Cela facilite grandement la comptabilité et le partage d'informations avec des intervenants externes.
+
+9
+00:11:00,000 --> 00:12:00,000
+Comme vous pouvez le voir, l'interface s'adapte également à vos préférences de travail. Le mode sombre, que nous activons ici, offre une alternative élégante et reposante pour les yeux lors d'une utilisation prolongée. C'est ce souci du détail qui fait d'EduManage un logiciel premium.
+
+10
+00:12:00,000 --> 00:13:20,000
+En résumé, EduManage n'est pas seulement un outil de gestion, c'est une véritable extension de votre équipe administrative. Il automatise les tâches répétitives, sécurise vos données et vous permet de vous concentrer sur ce qui compte vraiment : la réussite de vos élèves.
+
+11
+00:13:20,000 --> 00:14:00,000
+Nous espérons que cette démonstration vous a donné un bon aperçu des capacités de notre solution. N'hésitez pas à nous contacter pour une présentation personnalisée ou pour toute question. Merci de nous avoir suivis et à bientôt sur EduManage !
+
